@@ -87,9 +87,9 @@ export function SubscriptionModal({ isOpen, onClose, plan }: SubscriptionModalPr
         plan?.price?.replace(/[^\d,]/g, '')?.replace(',', '')
       ) || 0 // Ex: "R$ 49,90" -> "4990"
     };
-
+    console.log()
     try {
-      const response = await axios.post('https://api-checkout-one.vercel.app/create-transaction', payload);
+      const response = await axios.post('http://localhost:8080/create-transaction', payload);
 
       const pixCode = response.data.qrcode; // <- a resposta é uma string direta
       const id = response.data.id;
@@ -128,7 +128,7 @@ export function SubscriptionModal({ isOpen, onClose, plan }: SubscriptionModalPr
       setCopySuccess(false); // Clear copy success state
       onClose();
     }}>
-      <DialogContent className="sm:max-w-[425px] p-0 overflow-hidden rounded-lg">
+      <DialogContent className="w-full max-w-[calc(100vw-2rem)] sm:max-w-[425px] p-0 overflow-hidden rounded-lg" >
         {paymentStep === 'form' && (
           <>
             <div className="p-4 border-b border-gray-200 flex items-center gap-3">
