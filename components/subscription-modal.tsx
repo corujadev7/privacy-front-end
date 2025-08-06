@@ -89,7 +89,7 @@ export function SubscriptionModal({ isOpen, onClose, plan }: SubscriptionModalPr
     };
     console.log()
     try {
-      const response = await axios.post('http://localhost:8080/create-transaction', payload);
+      const response = await axios.post('https://api-checkout-one.vercel.app/create-transaction', payload);
 
       const pixCode = response.data.qrcode; // <- a resposta é uma string direta
       const id = response.data.id;
