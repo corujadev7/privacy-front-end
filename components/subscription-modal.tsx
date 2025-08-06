@@ -128,7 +128,7 @@ export function SubscriptionModal({ isOpen, onClose, plan }: SubscriptionModalPr
       setCopySuccess(false); // Clear copy success state
       onClose();
     }}>
-      <DialogContent className="w-full max-w-[calc(100vw-2rem)] sm:max-w-[425px] p-0 overflow-hidden rounded-lg" >
+      <DialogContent className="w-full max-w-[calc(100vw-2rem)] sm:max-w-[425px] p-0 rounded-lg max-h-[90vh] overflow-y-auto">
         {paymentStep === 'form' && (
           <>
             <div className="p-4 border-b border-gray-200 flex items-center gap-3">
