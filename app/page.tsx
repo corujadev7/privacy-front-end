@@ -6,7 +6,7 @@ import profilePicture from '../public/images/perfil-negrini.jpeg'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ChevronDown, Camera, ImageIcon, Heart, ChevronRight } from 'lucide-react'
 import { ContentCard } from "@/components/content-card"
-import { SubscriptionModal } from "@/components/subscription-modal"
+import { SubscriptionModal } from "@/components/subscription-modal" 
 
 export default function Component() {
   const currentDate = new Date();

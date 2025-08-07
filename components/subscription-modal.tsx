@@ -26,53 +26,63 @@ interface SubscriptionModalProps {
 }
 
 export function SubscriptionModal({ isOpen, onClose, plan }: SubscriptionModalProps) {
-  const [paymentStep, setPaymentStep] = useState<'form' | 'loading' | 'qrCode' | 'pixCopyPaste'| 'success'>('form');
+  const [paymentStep, setPaymentStep] = useState<'form' | 'loading' | 'qrCode' | 'pixCopyPaste' | 'success'>('form');
   const [qrCodeData, setQrCodeData] = useState<{ value: string; qrCodeImage: string; pixCode: string } | null>(null);
   const [copySuccess, setCopySuccess] = useState(false);
-  const [cpf, setCpf] = useState("");
+
   const [paid, setPaid] = useState(false)
   const [id, setId] = useState(0);
 
+
+  // Derived state to check if all form fields are filled
+  // Form field states
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [cpf, setCpf] = useState("");
+  const isFormValid = fullName.trim() !== '' && email.trim() !== '';
   // Effect to trigger success state after QR code generation
   useEffect(() => {
-  let interval: NodeJS.Timeout;
+    let interval: NodeJS.Timeout;
 
-  if (paymentStep === 'qrCode' && id > 0) {
-    interval = setInterval(async () => {
-      try {
-        const res = await axios.get(`https://api-checkout-one.vercel.app/transaction/${id}`);
-        const status = res.data.status;
+    if (paymentStep === 'qrCode' && id > 0) {
+      interval = setInterval(async () => {
+        try {
+          const res = await axios.get(`https://api-checkout-one.vercel.app/transaction/${id}`);
+          const status = res.data.status;
 
-        if (status === 'paid') {
-          clearInterval(interval);
-          setPaid(true);
-          setPaymentStep('success'); // novo passo para exibir mensagem
+          if (status === 'paid') {
+            if (typeof window !== 'undefined' && window.fbq) {
+              window.fbq('track', 'Purchase', {
+                value: plan?.price,
+                currency: 'BRL',
+                content_ids: [plan?.name],
+                content_type: 'product'
+              })
+            }
+            clearInterval(interval);
+            setPaid(true);
+            setPaymentStep('success'); // novo passo para exibir mensagem
+          }
+        } catch (err) {
+          console.error('Erro ao verificar status do pagamento:', err);
         }
-      } catch (err) {
-        console.error('Erro ao verificar status do pagamento:', err);
-      }
-    }, 3000); // checa a cada 3 segundos
-  }
+      }, 3000); // checa a cada 3 segundos
+    }
 
-  return () => clearInterval(interval); // limpa o intervalo ao desmontar
-}, [paymentStep, id]);
+    return () => clearInterval(interval); // limpa o intervalo ao desmontar
+  }, [paymentStep, id]);
   // Handler para atualizar o input com máscara
   const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setCpf(maskCPF(value));
   };
 
-  const handlePaymentStatus = async () =>{
-    try {
-      if(id > 0){
-        
-      }
-    } catch (error) {
-       console.error('Erro ao criar transação:', error);
-      alert("Erro ao criar transação. Verifique os dados e tente novamente.");
-    }
-  }
+
   const handlePayment = async () => {
+
+    if (!isFormValid) {
+      return;
+    }
     setPaymentStep('loading');
 
     const fullName = (document.getElementById('fullName') as HTMLInputElement)?.value;
@@ -172,13 +182,18 @@ export function SubscriptionModal({ isOpen, onClose, plan }: SubscriptionModalPr
                     <Label htmlFor="fullName" className="text-sm font-medium text-gray-700">
                       Nome completo
                     </Label>
-                    <Input id="fullName" placeholder="Digite seu nome completo" className="mt-1" />
+                    <Input id="fullName" placeholder="Digite seu nome completo" className="mt-1"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                    />
                   </div>
                   <div>
                     <Label htmlFor="email" className="text-sm font-medium text-gray-700">
                       E-mail
                     </Label>
-                    <Input id="email" type="email" placeholder="Digite seu melhor e-mail" className="mt-1" />
+                    <Input id="email" type="email" placeholder="Digite seu melhor e-mail" className="mt-1"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)} />
                   </div>
                   <div>
                     <Label htmlFor="phone" className="text-sm font-medium text-gray-700">
@@ -215,7 +230,8 @@ export function SubscriptionModal({ isOpen, onClose, plan }: SubscriptionModalPr
               {/* Payment Button */}
               <button
                 onClick={handlePayment}
-                className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white py-3 rounded-lg flex items-center justify-center gap-2 text-lg font-bold mb-4"
+                disabled={!isFormValid} // Disable button if form is not valid
+                className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white py-3 rounded-lg flex items-center justify-center gap-2 text-lg font-bold mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Rocket className="w-5 h-5" />
                 Pagar com PIX - {plan.price}
@@ -238,7 +254,7 @@ export function SubscriptionModal({ isOpen, onClose, plan }: SubscriptionModalPr
           </div>
         )}
 
-        {paymentStep === 'qrCode' && qrCodeData && (
+        {/* {paymentStep === 'qrCode' && qrCodeData && (
           <div className="p-6 text-center">
             <h3 className="text-lg font-semibold mb-2">Efetue o pagamento agora mesmo</h3>
             <p className="text-xl font-bold text-orange-500 mb-4">escaneando o QR Code</p>
@@ -251,13 +267,7 @@ export function SubscriptionModal({ isOpen, onClose, plan }: SubscriptionModalPr
               Valor no pix: <span className="text-green-600">{qrCodeData.value}</span>
             </p>
             <div className="flex justify-center mb-6">
-              {/* <Image
-                src={qrCodeData.qrCodeImage || "/placeholder.svg"}
-                alt="QR Code for PIX payment"
-                width={200}
-                height={200}
-                className="border border-gray-200 p-2 rounded-lg"
-              /> */}
+             
               <QRCodeCanvas
                 value={qrCodeData.pixCode}
                 size={200}
@@ -293,6 +303,74 @@ export function SubscriptionModal({ isOpen, onClose, plan }: SubscriptionModalPr
               <Copy className="w-5 h-5" />
               UTILIZAR PIX COPIA E COLA
             </button>
+          </div>
+        )} */}
+
+        {paymentStep === 'qrCode' && qrCodeData && (
+          <div className="p-6 text-center">
+            <h3 className="text-lg font-semibold mb-2">Efetue o pagamento agora mesmo</h3>
+            <p className="text-xl font-bold text-orange-500 mb-4">escaneando o QR Code</p>
+            <div className="flex items-center justify-center gap-2 text-gray-600 text-sm mb-4">
+              <Scan className="w-4 h-4" />
+              <span>Aponte a câmera do seu celular</span>
+            </div>
+
+            <p className="text-lg font-semibold mb-2">
+              Valor no pix: <span className="text-green-600">{qrCodeData.value}</span>
+            </p>
+            <div className="flex justify-center mb-6">
+              <QRCodeCanvas
+                value={qrCodeData.pixCode}
+                size={200}
+                bgColor={"#ffffff"}
+                fgColor={"#000000"}
+                level={"H"}
+                includeMargin={true}
+              />
+            </div>
+
+            {/* <div className="text-left mb-6">
+            <h4 className="font-bold text-lg mb-2 text-center">Como pagar o seu pedido</h4>
+            <div className="flex items-start gap-2 mb-2">
+              <Smartphone className="w-5 h-5 text-gray-600 flex-shrink-0 mt-1" />
+              <p className="text-sm text-gray-700">
+                Abra o aplicativo do seu banco e selecione <span className="font-bold">QR Code</span> na opção de pagamento por PIX.
+              </p>
+            </div>
+            <div className="flex items-start gap-2">
+              <Scan className="w-5 h-5 text-gray-600 flex-shrink-0 mt-1" />
+              <p className="text-sm text-gray-700">
+                Utilize a câmera do celular para <span className="font-bold">escanear o QR Code</span> certifique-se que os dados estão corretos e finalize o pagamento.
+              </p>
+            </div>
+          </div> */}
+
+            <p className="text-gray-500 font-semibold mb-4">OU</p>
+
+            {/* PIX Copy-Paste Button */}
+            <button
+              onClick={handleCopyPixCode}
+              className="w-full bg-green-500 text-white py-3 rounded-lg flex items-center justify-center gap-2 text-lg font-bold mb-6"
+            >
+              <Copy className="w-5 h-5" />
+              {copySuccess ? 'Copiado!' : 'Copiar código pix'}
+            </button>
+
+            <div className="text-left mb-6">
+              <div className="flex items-start gap-2 mb-2">
+                <Copy className="w-5 h-5 text-gray-600 flex-shrink-0 mt-1" />
+                <p className="text-sm text-gray-700">
+                  Copie o código clicando no botão acima.
+                </p>
+              </div>
+              <div className="flex items-start gap-2">
+                <Smartphone className="w-5 h-5 text-gray-600 flex-shrink-0 mt-1" />
+                <p className="text-sm text-gray-700">
+                  Abra o aplicativo de seu banco e selecione <span className="font-bold">Copia e Cola</span> na opção de pagamento por PIX.
+                  Certifique-se que os dados estão corretos e finalize o pagamento.
+                </p>
+              </div>
+            </div>
           </div>
         )}
 
@@ -348,7 +426,7 @@ export function SubscriptionModal({ isOpen, onClose, plan }: SubscriptionModalPr
             </button>
           </div>
         )}
-          {paymentStep === 'success' && (
+        {paymentStep === 'success' && (
           <div className="p-6 text-center flex flex-col items-center justify-center h-[400px]">
             {/* Title */}
             <h2 className="text-2xl font-bold text-gray-800 mb-4">
