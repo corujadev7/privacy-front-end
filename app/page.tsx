@@ -85,7 +85,7 @@ export default function Component() {
         {/* Profile Section */}
         <div className="relative h-64 md:h-80">
           <Image
-            src="/banner-negrini.jpeg"
+            src="/banner-novo.jpg"
             alt="Mel Maia background image"
             layout="fill"
             objectFit="cover"
