@@ -84,6 +84,16 @@ export function SubscriptionModal({ isOpen, onClose, plan }: SubscriptionModalPr
       return;
     }
     setPaymentStep('loading');
+    if (paymentStep == 'loading') {
+      if (typeof window !== 'undefined' && window.fbq) {
+        window.fbq('track', 'InitiateCheckout', {
+          content_ids: [plan?.name],
+          content_type: 'product',
+          currency: 'BRL',
+          value: plan?.price
+        })
+      }
+    }
 
     const fullName = (document.getElementById('fullName') as HTMLInputElement)?.value;
     const email = (document.getElementById('email') as HTMLInputElement)?.value;
