@@ -143,7 +143,7 @@ export default function Component() {
           <h2 className="text-xl font-bold mb-4">Assinaturas</h2>
           <div
             className="relative bg-orange-500 text-white p-4 rounded-lg shadow-md mb-4 cursor-pointer"
-            onClick={() => handleOpenModal("30 DIAS", "R$ 9,90", "+ CHAMADA DE VIDEO COMIGO HOJE!")}
+            onClick={() => handleOpenModal("30 DIAS", "R$ 14,90", "+ CHAMADA DE VIDEO COMIGO HOJE!")}
           >
             <span className="absolute -top-2 left-4 bg-orange-600 text-xs font-semibold px-2 py-1 rounded-full">
               MAIS POPULAR 🔥
@@ -153,7 +153,7 @@ export default function Component() {
                 <p className="text-lg font-bold">30 DIAS</p>
                 <p className="text-sm">+ CHAMADA DE VIDEO COMIGO HOJE!</p>
               </div>
-              <p className="text-xl font-bold">R$ 9,90</p>
+              <p className="text-xl font-bold">R$ 14,90</p>
             </div>
           </div>
 
