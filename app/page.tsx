@@ -223,8 +223,8 @@ export default function Component() {
         {/* Bottom CTA Button */}
         <div className="p-4 border-t border-gray-200">
           <button className="w-full bg-orange-500 text-white py-3 rounded-lg flex items-center justify-center gap-2 text-lg font-bold"
-          onClick={() => handleOpenModal("30 DIAS", "R$ 9,90", "+ CHAMADA DE VIDEO COMIGO HOJE!")}>
-            VEJA TUDO POR APENAS R$ 9,90
+          onClick={() => handleOpenModal("30 DIAS", "R$ 14,90", "+ CHAMADA DE VIDEO COMIGO HOJE!")}>
+            VEJA TUDO POR APENAS R$ 14,90
             <ChevronRight className="w-5 h-5" />
           </button>
         </div>
